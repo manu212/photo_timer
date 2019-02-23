@@ -8,7 +8,7 @@ unsigned long keyPressedTime = 0;
 int deciScnds = 10;
 
 void setupTimer() {
-  Serial.begin(2000000);
+  Serial.begin(9600); //also affects brightness, sine brightness is only turn on/off leds
   for (int i = 0; i < 4; i++) {
     pinMode(buttonPins[i][0], INPUT_PULLUP);
   }
