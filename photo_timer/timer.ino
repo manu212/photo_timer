@@ -6,6 +6,7 @@ bool keyPressedOld = false;
 unsigned long keyPressedTime = 0;
 
 int deciScnds = 10;
+int milliScnds = 1;
 
 void setupTimer() {
   Serial.begin(9600); //also affects brightness, sine brightness is only turn on/off leds
@@ -48,6 +49,7 @@ void loopTimer() {
 
 void ReadValues() {
   for (int i = 0; i < 4; i++) {
+    buttonPins[i][2] = buttonPins[i][1]; // save old button value, last frame
     buttonPins[i][1] = analogRead(buttonPins[i][0]);
     if (buttonPins[i][1] < 100) {
       if (isDebug == true) {
@@ -84,18 +86,22 @@ void SetLightTime() {
     } else {
       keyPressed = false;
     }
-    if ( keyPressed && (keyPressedTime + btnReactionTime < millis()) ) { // count keypress via long press **
+    if ( keyPressed && (keyPressedTime + btnReactionTimeLong < millis()) ) { // count keypress via long press **
       if (buttonPins[2][1] < 100) {
         lightTime -= deciScnds;
       } else if (buttonPins[3][1] < 100) {
         lightTime += deciScnds;
       }
-    }
-
-    if ( (keyPressed != keyPressedOld) || ((millis() > keyPressedTime + btnReactionTime)) ) { //** automatically trigger keypress after btnReactionTime
       if (isDebug == true) {
         Serial.print("kreyPressed: ");
         Serial.println(keyPressed);
+      }
+      keyPressedTime = millis();
+    } else if ( (keyPressed == false) && (keyPressedOld == true) && ((millis() > keyPressedTime + btnReactionTimeShort) && (keyPressedTime *0.5)) ) { // defining the range for a short press, under 200ms, but over 100ms
+      if (buttonPins[2][2] < 100) {
+        lightTime -= milliScnds;
+      } else if (buttonPins[3][2] < 100) {
+        lightTime += milliScnds;
       }
       keyPressedTime = millis();
     }
